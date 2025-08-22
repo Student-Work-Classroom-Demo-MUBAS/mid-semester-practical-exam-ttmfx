@@ -1,4 +1,6 @@
 // === MegaUniversity — Course Enrollment (Starter with TODOs) ===
+const { randomInt } = require('crypto');
+const e = require('express');
 const express = require('express');
 const path = require('path');
 
@@ -128,11 +130,13 @@ app.post('/enroll', (req, res) => {
   console.log(req.body);
 
   const student = {
+    id: Math.floor(100000 + Math.random() * 900000),
     studentName: req.body.studentName,
     studentId: req.body.studentId,
     courseCode: req.body.courseCode,
     semester: req.body.semester,
-    reason: req.body.reason
+    reason: req.body.reason,
+    enrollmentDate: new Date()
     
   };
 
@@ -173,7 +177,18 @@ app.post('/unenroll/:id', (req, res) => {
   // 2) Remove matching enrollment from array if found
   // 3) Redirect back to /enrollments (or show error)
 
-  return res.status(501).send(page('Not Implemented', '<p class="muted">TODO: implement /unenroll/:id</p><p><a href="/enrollments">Back</a></p>'));
+  // enrollments.pop(req.params.id);
+  console.log(req.params);
+  enrollments.forEach((enrollment, index) => {
+    if (enrollment.id == req.params.id) {
+      console.log("Unenrolled " + req.params.id + "==="+  enrollment.id);
+      enrollments.splice(index, 1);
+
+    }
+  })
+
+    res.redirect("/");
+  // return res.status(501).send(page('Not Implemented', '<p class="muted">TODO: implement /unenroll/:id</p><p><a href="/enrollments">Back</a></p>'));
 });
 
 // Static last so dynamic routes above take priority
