@@ -82,6 +82,8 @@ app.get('/enrollments', (req, res) => {
 
   const body = `
     <section class="card">
+    <input type="text" placeholder="Filter name"/>
+
       <h2>Current Enrollments</h2>
       <div class="table-wrap">
         <table>
