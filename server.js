@@ -9,6 +9,11 @@ const PORT = process.env.PORT || 3000;
 // Use built-in body parser for HTML forms
 app.use(express.urlencoded({ extended: true }));
 
+/* constant variables */
+const currentYear = new Date().getFullYear();
+const regex = /^\d{4}-\d{4}$/;
+// const regex = /^[0-9]{4}\-[0-9]{4}?$/;
+
 /* ===== In-memory data ===== */
 const availableCourses = [
   { code: "CS401", name: "Advanced Web Development", instructor: "Dr. Smith", credits: 3, capacity: 30 },
@@ -17,7 +22,16 @@ const availableCourses = [
   { code: "CS404", name: "Computer Networks",         instructor: "Dr. Zhao",  credits: 3, capacity: 30 },
   { code: "CS405", name: "Artificial Intelligence",   instructor: "Dr. Gomez", credits: 3, capacity: 25 }
 ];
-const enrollments = []; // { id, studentName, studentId, courseCode, courseName, semester, reason, enrollmentDate }
+
+function idExists(id){
+  for (let i = 0; i < enrollments.length; i++){
+    if (enrollments[i].studentId == id){
+      return true;
+    }
+  }
+  return false;
+}
+var enrollments = []; // { id, studentName, studentId, courseCode, courseName, semester, reason, enrollmentDate }
 let enrollmentIdCounter = 1;
 
 /* ===== Helpers ===== */
@@ -111,7 +125,45 @@ app.post('/enroll', (req, res) => {
   enrollments.push(newEnroll);
   res.redirect('/enrollments');
   */
-  return res.status(501).send(page('Not Implemented', '<p class="muted">TODO: implement /enroll using req.body</p><p><a href="/">Back</a></p>'));
+  console.log(req.body);
+
+  const student = {
+    studentName: req.body.studentName,
+    studentId: req.body.studentId,
+    courseCode: req.body.courseCode,
+    semester: req.body.semester,
+    reason: req.body.reason
+    
+  };
+
+  // console.log(regex.test(student.studentId))
+  if (student.studentName==""){
+      return res.status(501).send(page('Student Name Empty', '<p class="muted">Student name can not be empty</p><p><a href="/">Back</a></p>'));
+  }
+  if (student.studentId==""){
+      return res.status(501).send(page('Student ID Empty', '<p class="muted">Student ID can not be empty</p><p><a href="/">Back</a></p>'));
+  }
+  if (student.semester==""){
+      return res.status(501).send(page('Semester Empty', '<p class="muted">Semester can not be empty</p><p><a href="/">Back</a></p>'));
+  }
+
+
+  if(student.studentId.substring(0,4)!=2025){
+    console.log(student.studentId.substring(0,4))
+      return res.status(501).send(page('Invalid Student ID', '<p class="muted">Invalid Student ID, Year not 2025</p><p><a href="/">Back</a></p>'));
+  }
+
+  if(!regex.test(student.studentId)){
+      return res.status(501).send(page('Invalid Student ID', '<p class="muted">Invalid Student ID, Does not follow format YYYY-NNNN</p><p><a href="/">Back</a></p>'));
+  }
+
+  if(idExists(student.studentId)){
+      return res.status(501).send(page('Invalid Student ID', '<p class="muted">Invalid Student ID, ID already exists</p><p><a href="/">Back</a></p>'));
+  }
+  console.log(req.body);
+  enrollments.push(student);
+  res.redirect("/enrollments");
+  // return res.status(501).send(page('Not Implemented', '<p class="muted">TODO: implement /enroll using req.body</p><p><a href="/">Back</a></p>'));
 });
 
 // Unenroll (form POST)
