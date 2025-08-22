@@ -34,7 +34,7 @@ function idExists(id){
   return false;
 }
 var enrollments = []; // { id, studentName, studentId, courseCode, courseName, semester, reason, enrollmentDate }
-let enrollmentIdCounter = 1;
+let enrollmentIdCounter = 0;
 
 /* ===== Helpers ===== */
 const page = (title, body) => `<!doctype html>
@@ -130,13 +130,13 @@ app.post('/enroll', (req, res) => {
   console.log(req.body);
 
   const student = {
-    id: Math.floor(100000 + Math.random() * 900000),
+    id: enrollmentIdCounter++,
     studentName: req.body.studentName,
     studentId: req.body.studentId,
     courseCode: req.body.courseCode,
     semester: req.body.semester,
     reason: req.body.reason,
-    enrollmentDate: new Date()
+    enrollmentDate: new Date().toISOString().slice(0, 10)
     
   };
 
@@ -183,11 +183,12 @@ app.post('/unenroll/:id', (req, res) => {
     if (enrollment.id == req.params.id) {
       console.log("Unenrolled " + req.params.id + "==="+  enrollment.id);
       enrollments.splice(index, 1);
+      res.redirect("/enrollments");
 
     }
   })
 
-    res.redirect("/");
+    res.redirect("/enrollments");
   // return res.status(501).send(page('Not Implemented', '<p class="muted">TODO: implement /unenroll/:id</p><p><a href="/enrollments">Back</a></p>'));
 });
 
